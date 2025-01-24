@@ -1,7 +1,7 @@
 # Next.js AI Chat
 ---
 
-### Author Links
+<!-- ### Author Links
 
 👋 Hello, I'm Dave Gray.
 
@@ -47,4 +47,4 @@
 - 🔗 [Vercel AI SDK](https://sdk.vercel.ai/docs)
 - 🔗 [OpenAI](https://openai.com/)
 - 🔗 [shadcn/ui](https://ui.shadcn.com/)
-- 🔗 [Next.js Light & Dark Modes](https://www.davegray.codes/posts/light-dark-mode-nextjs-app-router-tailwind)
+- 🔗 [Next.js Light & Dark Modes](https://www.davegray.codes/posts/light-dark-mode-nextjs-app-router-tailwind) -->
