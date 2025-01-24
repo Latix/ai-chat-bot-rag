@@ -1,4 +1,5 @@
 import {
+    Message as VercelChatMessage,
     StreamingTextResponse,
     createStreamDataTransformer
 } from 'ai';
@@ -8,13 +9,33 @@ import { HttpResponseOutputParser } from 'langchain/output_parsers';
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Basic memory formatter that stringifies and passes
+ * message history directly into the model.
+ */
+const formatMessage = (message: VercelChatMessage) => {
+    return `${message.role}: ${message.content}`;
+};
+
+const TEMPLATE = `You are a pirate named Patchy. All responses must be extremely verbose and in pirate dialect.
+
+Current conversation:
+{chat_history}
+
+user: {input}
+assistant:`;
+
+
 export async function POST(req: Request) {
     try {
         // Extract the `messages` from the body of the request
         const { messages } = await req.json();
-        const message = messages.at(-1).content;
 
-        const prompt = PromptTemplate.fromTemplate("{message}");
+        const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
+
+        const currentMessageContent = messages.at(-1).content;
+
+        const prompt = PromptTemplate.fromTemplate(TEMPLATE);
 
         const model = new ChatOpenAI({
             apiKey: process.env.OPENAI_API_KEY!,
@@ -31,17 +52,10 @@ export async function POST(req: Request) {
         const chain = prompt.pipe(model).pipe(parser);
 
         // Convert the response into a friendly text-stream
-        const stream = await chain.stream({ message });
-
-        //const decoder = new TextDecoder()
-
-        // Each chunk has the same interface as a chat message
-        // for await (const chunk of stream) {
-        //     //console.log(chunk?.content);
-        //     if (chunk) {
-        //         console.log(decoder.decode(chunk))
-        //     }
-        // }
+        const stream = await chain.stream({
+            chat_history: formattedPreviousMessages.join('\n'),
+            input: currentMessageContent,
+        });
 
         // Respond with the stream
         return new StreamingTextResponse(
